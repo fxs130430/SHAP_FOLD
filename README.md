@@ -15,8 +15,9 @@ We only support Windows at the moment.
 1. Download src folder and its contents
 2. Change directory to the "src" and compile the sources using the following command:
 <pre> javac -cp jpl.jar *.java </pre>
-3. Move to build directory and run the following command:
-<pre> jar cvf ufold.jar * </pre>
+3. Create the Jar file using the following command:
+<pre> jar -cmvf META-INF/MANIFEST.MF fold.jar * </pre>
+4. Upon Sucessful execution the fold.jar file will be created.
 
 ## Instructions
 1. Data preparation
@@ -28,4 +29,4 @@ We only support Windows at the moment.
     + Remember the dataset_name variable. It will be used later to run FOLD algorithm.
     + Run the Python sccript as follows:<pre> python training.py </pre>.
     + Upon sucessful execution it will produce 6 files including 2 Prolog files with ".pl" extension. Make sure that all files are put in the same folder that the jar file "UFOLD.java" is located.  
-3. Run the FOLD algorithm as follows: <pre> java -jar UFOLD.jar -mode shapfold <dataset_name> </pre>
+3. Run the FOLD algorithm as follows: <pre> java -jar fold.jar -mode shapfold <dataset_name> </pre>
