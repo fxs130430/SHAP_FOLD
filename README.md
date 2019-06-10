@@ -11,3 +11,11 @@ We only support Windows at the moment.
 * XGBoost <pre> pip3 install xgboost </pre>
 * [SWI-Prolog](http://www.swi-prolog.org/)  x64-win64, version 7.4.0-rc2
 * [JPL Library](https://github.com/SWI-Prolog/packages-jpl) and [here](https://jpl7.org/DeploymentWindows.html) for JPL installation troubleshooting
+## Instructions
+1. Data preparation
+    + Create a dataset as ".csv" file and perform the following steps:
+    + Add a header row so that each column has a name. The class column should be named "label". Order is not important
+    + Add a new column named "id" and use MS Excel to assign a unique integer to each data row
+2. Training a Statistical Model
+    
+### Python Script
