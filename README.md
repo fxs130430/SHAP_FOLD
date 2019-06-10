@@ -8,4 +8,4 @@ This algorothm replaces the heuristic based search for best clause in ILP, with 
 ### Pre Requisites
 * SHAP <pre> pip install shap </pre>
 * XGBoost <pre> pip3 install xgboost </pre>
-* [SWI-Prolog] (http://www.swi-prolog.org/)  x64-win64, version 7.4.0-rc2
+* [SWI-Prolog](http://www.swi-prolog.org/)  x64-win64, version 7.4.0-rc2
