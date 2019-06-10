@@ -17,7 +17,7 @@ We only support Windows at the moment.
 <pre> javac -cp jpl.jar *.java </pre>
 3. Create the Jar file using the following command:
 <pre> jar -cmvf META-INF/MANIFEST.MF fold.jar * </pre>
-4. Upon Sucessful execution the fold.jar file will be created.
+4. Upon Successful execution the fold.jar file will be created.
 
 ## Instructions
 1. Data preparation
@@ -30,4 +30,4 @@ We only support Windows at the moment.
     + Run the Python sccript as follows:<pre> python training.py </pre>.
     + Upon sucessful execution it will produce 6 files including 2 Prolog files with ".pl" extension. Make sure that all files are put in the same folder that the jar file "UFOLD.java" is located.  
 3. Run the FOLD algorithm as follows: <pre> java -jar fold.jar -mode shapfold <dataset_name> </pre>
-4. Upon sucessful execution, the file "hypothesis.txt" will be created. It contains a logic program that would explain the underlying logic of the statistical model trained using "training.py" script.
+4. Upon successful execution, the file "hypothesis.txt" will be created. It contains a logic program that would explain the underlying logic of the statistical model trained using "training.py" script.
