@@ -11,8 +11,13 @@ We only support Windows at the moment.
 * XGBoost <pre> pip3 install xgboost </pre>
 * [SWI-Prolog](http://www.swi-prolog.org/)  x64-win64, version 7.4.0-rc2
 * [JPL Library](https://github.com/SWI-Prolog/packages-jpl) and [here](https://jpl7.org/DeploymentWindows.html) for JPL installation troubleshooting
-### Compile Sources
-<pre> javac -classpath "lib/jpl.jar ;src" src/ufold/*.java </pre>
+### Compile Sources (Create Jar file)
+1. Download src folder and its contents
+2. Change directory to the parent of src and compile the sources using the following command:
+<pre> javac -d ./build -classpath "lib/jpl.jar ;src" src/ufold/*.java </pre>
+3. Move to build directory and run the following command:
+<pre> jar cvf ufold.jar * </pre>
+
 ## Instructions
 1. Data preparation
     + Create a dataset as ".csv" file.
