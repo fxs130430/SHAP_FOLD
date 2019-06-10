@@ -13,8 +13,8 @@ We only support Windows at the moment.
 * [JPL Library](https://github.com/SWI-Prolog/packages-jpl) and [here](https://jpl7.org/DeploymentWindows.html) for JPL installation troubleshooting
 ### Compile Sources (Create Jar file)
 1. Download src folder and its contents
-2. Change directory to the parent of src and compile the sources using the following command:
-<pre> javac -d ./build -classpath "lib/jpl.jar ;src" src/ufold/*.java </pre>
+2. Change directory to the "src" and compile the sources using the following command:
+<pre> javac -cp jpl.jar *.java </pre>
 3. Move to build directory and run the following command:
 <pre> jar cvf ufold.jar * </pre>
 
