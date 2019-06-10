@@ -16,8 +16,9 @@ We only support Windows at the moment.
     + Create a dataset as ".csv" file.
     + Add a header row so that each column has a name. The class column should be named "label". Order is not important
     + Add a new column named "id" and use MS Excel to assign a unique integer to each data row.
+2. Training a Statistical Model
     + Modify the "training.py" according the provided examples to work with your dataset.
     + run the Python sccript as follows:<pre> python training.py </pre>.
-2. Training a Statistical Model
+    + Upon sucessful execution it will produce 6 files including 2 Prolog files with ".pl" extension. With the exception of test file which is a held out data for measuring the test accuracy, all other (5) files must be put in the same folder that the jar file "UFOLD.java" is located.  
     
 ### Python Script
