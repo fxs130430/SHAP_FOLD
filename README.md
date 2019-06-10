@@ -6,4 +6,6 @@ This algorothm replaces the heuristic based search for best clause in ILP, with 
 
 ## Install
 ### Pre Requisites
-* SHAP <pre> pip install shap <i>or</i> conda install -c conda-forge shap </pre>
+* SHAP <pre> pip install shap </pre>
+* XGBoost <pre> pip3 install xgboost </pre>
+* [SWI-Prolog] (http://www.swi-prolog.org/)  x64-win64, version 7.4.0-rc2
