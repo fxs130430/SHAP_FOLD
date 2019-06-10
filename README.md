@@ -13,9 +13,11 @@ We only support Windows at the moment.
 * [JPL Library](https://github.com/SWI-Prolog/packages-jpl) and [here](https://jpl7.org/DeploymentWindows.html) for JPL installation troubleshooting
 ## Instructions
 1. Data preparation
-    + Create a dataset as ".csv" file and perform the following steps:
+    + Create a dataset as ".csv" file.
     + Add a header row so that each column has a name. The class column should be named "label". Order is not important
-    + Add a new column named "id" and use MS Excel to assign a unique integer to each data row
+    + Add a new column named "id" and use MS Excel to assign a unique integer to each data row.
+    + Modify the "training.py" according the provided examples to work with your dataset.
+    + run the Python sccript as follows:<pre> python training.py </pre>.
 2. Training a Statistical Model
     
 ### Python Script
