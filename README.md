@@ -18,7 +18,7 @@ We only support Windows at the moment.
     + Add a new column named "id" and use MS Excel to assign a unique integer to each data row.
 2. Training a Statistical Model
     + Modify the "training.py" according the provided examples to work with your dataset.
-    + run the Python sccript as follows:<pre> python training.py </pre>.
-    + Upon sucessful execution it will produce 6 files including 2 Prolog files with ".pl" extension. With the exception of test file which is a held out data for measuring the test accuracy, all other (5) files must be put in the same folder that the jar file "UFOLD.java" is located.  
-    
-### Python Script
+    + Remember the dataset_name variable. It will be used later to run FOLD algorithm.
+    + Run the Python sccript as follows:<pre> python training.py </pre>.
+    + Upon sucessful execution it will produce 6 files including 2 Prolog files with ".pl" extension. Make sure that all files are put in the same folder that the jar file "UFOLD.java" is located.  
+3. Run the FOLD algorithm as follows: <pre> java -jar UFOLD.jar -mode shapfold <dataset_name> </pre>
