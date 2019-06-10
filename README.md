@@ -4,8 +4,10 @@ This is the First Implementation of FOLD (First Order Learner of Default) algori
 ### SHAP_FOLD
 This algorothm replaces the heuristic based search for best clause in ILP, with a technique from datamining known as High-Utility Itemset Mining. The idea is to use [SHAP](https://github.com/slundberg/shap "SHAP") to generate relevant features for each training data. Then our FOLD algorithm learns a set of Non-Monotonic clauses, that would capture the underlying logic of the Statistical Model from which SHAP features were extracted. For more details refer to our [arXiv paper](https://arxiv.org/pdf/1905.11226.pdf). 
 
-## Install
-### Pre Requisites
+## Install 
+### Prerequisites
+We only support Windows at the moment.
 * SHAP <pre> pip install shap </pre>
 * XGBoost <pre> pip3 install xgboost </pre>
 * [SWI-Prolog](http://www.swi-prolog.org/)  x64-win64, version 7.4.0-rc2
+* [JPL Library](https://github.com/SWI-Prolog/packages-jpl) and [here](https://jpl7.org/DeploymentWindows.html) for JPL installation troubleshooting
