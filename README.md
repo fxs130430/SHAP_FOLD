@@ -13,12 +13,10 @@ We only support Windows at the moment.
 * [JPL Library](https://github.com/SWI-Prolog/packages-jpl) - There is no classpath or Jar file needed. All it takes is to set environment variables
 * [ant apache](https://ant.apache.org/) is used to compile java code and produce jar file
 ### Compile Sources (Create Jar file)
-1. Download src folder and its contents
-2. Change directory to the "src" and compile the sources using the following command:
-<pre> javac -cp jpl.jar *.java </pre>
-3. Create the Jar file using the following command:
-<pre> jar -cmvf META-INF/MANIFEST.MF fold.jar * </pre>
-4. Upon Successful execution the fold.jar file will be created.
+1. Clone this repository
+2. Execute the following command: <pre> ant -buildfile build.xml </pre>
+3. Upon Successful execution two new folders (i.e., build, dist) will be created.
+4. Open the dist folder and copy the fold.jar to your conveneint destination folder. 
 
 ## Instructions
 1. Data preparation
