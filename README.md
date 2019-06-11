@@ -6,6 +6,7 @@ This algorithm replaces the heuristic based search for best clause in ILP, with 
 
 ### Examples
 [UCI Car evaluation](https://archive.ics.uci.edu/ml/datasets/car+evaluation) 
+```
 h_positive(A):-safety(A,high),not(ab0(A)).
 h_positive(A):-persons(A,4),safety(A,med),not(ab2(A)).
 h_positive(A):-lugboot(A,big),safety(A,med),persons(A,more).
@@ -34,7 +35,7 @@ ab6(A):-doors(A,2),lugboot(A,small).
 ab6(A):-doors(A,3),persons(A,2).
 ab8(A):-maint(A,vhigh),doors(A,2),lugboot(A,small).
 ab8(A):-maint(A,high).
-
+```
 
 ## Install 
 ### Prerequisites
