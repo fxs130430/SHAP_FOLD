@@ -10,7 +10,8 @@ We only support Windows at the moment.
 * SHAP <pre> pip install shap </pre>
 * XGBoost <pre> pip3 install xgboost </pre>
 * [SWI-Prolog](http://www.swi-prolog.org/)  x64-win64, version 7.4.0-rc2
-* [JPL Library](https://github.com/SWI-Prolog/packages-jpl) and [here](https://jpl7.org/DeploymentWindows.html) for JPL installation troubleshooting
+* [JPL Library](https://github.com/SWI-Prolog/packages-jpl) - There is no classpath or Jar file needed. All it takes is to set environment variables
+* [ant apache](https://ant.apache.org/) is used to compile java code and produce jar file
 ### Compile Sources (Create Jar file)
 1. Download src folder and its contents
 2. Change directory to the "src" and compile the sources using the following command:
