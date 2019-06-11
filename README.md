@@ -22,9 +22,6 @@ ab2(A):-buying(A,high),maint(A,vhigh).
 ab2(A):-maint(A,vhigh),buying(A,vhigh).
 ab2(A):-buying(A,vhigh),maint(A,high).
 ab2(A):-buying(A,high),lugboot(A,small).
-ab3(A):-doors(A,2).
-ab3(A):-maint(A,high),buying(A,vhigh).
-ab3(A):-buying(A,vhigh),maint(A,vhigh).
 ab4(A):-doors(A,2),maint(A,vhigh).
 ab4(A):-doors(A,2),buying(A,vhigh).
 ab6(A):-lugboot(A,small),persons(A,2).
