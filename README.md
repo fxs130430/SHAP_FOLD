@@ -4,16 +4,16 @@ This is the First Implementation of FOLD (First Order Learner of Default) algori
 ### SHAP_FOLD
 This algorithm replaces the heuristic based search for best clause in ILP, with a technique from datamining known as High-Utility Itemset Mining. The idea is to use [SHAP](https://github.com/slundberg/shap "SHAP") to generate relevant features for each training data. Then our FOLD algorithm learns a set of Non-Monotonic clauses, that would capture the underlying logic of the Statistical Model from which SHAP features were extracted. For more details refer to our [arXiv paper](https://arxiv.org/pdf/1905.11226.pdf). 
 
-### Examples
-[UCI Car evaluation](https://archive.ics.uci.edu/ml/datasets/car+evaluation) 
+### Example
+[UCI Car evaluation](https://archive.ics.uci.edu/ml/datasets/car+evaluation) contains examples with the six following attributes: buying price, maintenance, number of doors, persons (capacity), lug_boot size and safety. The following logic program will be learned by SHAP_FOLD algorithm using the insights taken from an XGBoost model. positive(A) indicates the examples for which a target property holds. In this dataset the target property is an acceptable car quality. Each clause states a default theory. For example the first clause says as long as car's safety is high, it has an acceptable quality unless it is an abnormal case, in which it's either two small (only fits 2 person) or the maintanance cost is high.
 ```
-h_positive(A):-safety(A,high),not(ab0(A)).
-h_positive(A):-persons(A,4),safety(A,med),not(ab2(A)).
-h_positive(A):-lugboot(A,big),safety(A,med),persons(A,more).
-h_positive(A):-safety(A,med),lugboot(A,med),persons(A,more),not(ab4(A)).
-h_positive(A):-buying(A,med),safety(A,high),not(ab6(A)).
-h_positive(A):-persons(A,4),safety(A,high),buying(A,low).
-h_positive(A):-safety(A,high),buying(A,low),persons(A,more),not(ab8(A)).
+positive(A):-safety(A,high),not(ab0(A)).
+positive(A):-persons(A,4),safety(A,med),not(ab2(A)).
+positive(A):-lugboot(A,big),safety(A,med),persons(A,more).
+positive(A):-safety(A,med),lugboot(A,med),persons(A,more),not(ab4(A)).
+positive(A):-buying(A,med),safety(A,high),not(ab6(A)).
+positive(A):-persons(A,4),safety(A,high),buying(A,low).
+positive(A):-safety(A,high),buying(A,low),persons(A,more),not(ab8(A)).
 
 ab0(A):-persons(A,2).
 ab0(A):-maint(A,vhigh).
@@ -53,7 +53,7 @@ We only support Windows at the moment.
 
 ## Instructions
 1. Data preparation
-    + Create a dataset as ".csv" file.
+    + Create a single table dataset as ".csv" file.
     + Add a header row so that each column has a name. The class column should be named "label". Order is not important
     + Add a new column named "id" and use MS Excel to assign a unique integer to each data row.
 2. Training a Statistical Model
