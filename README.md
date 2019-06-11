@@ -2,7 +2,39 @@
 This is the First Implementation of FOLD (First Order Learner of Default) algorithm. FOLD is an ILP algorithm that learns a hypothesis from a background knowledge represented as normal logic program, with two disjoint sets of Positive and Negative examples. Learning hypotheses in terms of default theories (i.e., default and exceptions) outperforms Horn based ILP algorithms in terms of classification evaluation measures. It also significantly decreases the number of induced clauses. For more information about the original FOLD algorithm and learning default theories kindly refer to the [FOLD paper](https://arxiv.org/pdf/1707.02693.pdf "FOLD paper").
 
 ### SHAP_FOLD
-This algorothm replaces the heuristic based search for best clause in ILP, with a technique from datamining known as High-Utility Itemset Mining. The idea is to use [SHAP](https://github.com/slundberg/shap "SHAP") to generate relevant features for each training data. Then our FOLD algorithm learns a set of Non-Monotonic clauses, that would capture the underlying logic of the Statistical Model from which SHAP features were extracted. For more details refer to our [arXiv paper](https://arxiv.org/pdf/1905.11226.pdf). 
+This algorithm replaces the heuristic based search for best clause in ILP, with a technique from datamining known as High-Utility Itemset Mining. The idea is to use [SHAP](https://github.com/slundberg/shap "SHAP") to generate relevant features for each training data. Then our FOLD algorithm learns a set of Non-Monotonic clauses, that would capture the underlying logic of the Statistical Model from which SHAP features were extracted. For more details refer to our [arXiv paper](https://arxiv.org/pdf/1905.11226.pdf). 
+
+### Examples
+[UCI Car evaluation](https://archive.ics.uci.edu/ml/datasets/car+evaluation) 
+h_positive(A):-safety(A,high),not(ab0(A)).
+h_positive(A):-persons(A,4),safety(A,med),not(ab2(A)).
+h_positive(A):-lugboot(A,big),safety(A,med),persons(A,more).
+h_positive(A):-safety(A,med),lugboot(A,med),persons(A,more),not(ab4(A)).
+h_positive(A):-buying(A,med),safety(A,high),not(ab6(A)).
+h_positive(A):-persons(A,4),safety(A,high),buying(A,low).
+h_positive(A):-safety(A,high),buying(A,low),persons(A,more),not(ab8(A)).
+
+ab0(A):-persons(A,2).
+ab0(A):-maint(A,vhigh).
+ab2(A):-buying(A,vhigh),lugboot(A,small).
+ab2(A):-buying(A,high),maint(A,vhigh).
+ab2(A):-maint(A,vhigh),buying(A,vhigh).
+ab2(A):-buying(A,vhigh),maint(A,high).
+ab2(A):-buying(A,high),lugboot(A,small).
+ab3(A):-doors(A,2).
+ab3(A):-maint(A,high),buying(A,vhigh).
+ab3(A):-buying(A,vhigh),maint(A,vhigh).
+ab4(A):-doors(A,2),maint(A,vhigh).
+ab4(A):-doors(A,2),buying(A,vhigh).
+ab6(A):-lugboot(A,small),persons(A,2).
+ab6(A):-maint(A,high).
+ab6(A):-maint(A,vhigh),persons(A,2).
+ab6(A):-doors(A,2),persons(A,2).
+ab6(A):-doors(A,2),lugboot(A,small).
+ab6(A):-doors(A,3),persons(A,2).
+ab8(A):-maint(A,vhigh),doors(A,2),lugboot(A,small).
+ab8(A):-maint(A,high).
+
 
 ## Install 
 ### Prerequisites
