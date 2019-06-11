@@ -1,12 +1,3 @@
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import org.jpl7.*;
-import javafx.util.Pair;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class UFOLD {
     public static void show_format()
     {
@@ -115,10 +106,10 @@ public class UFOLD {
                 else
                 {
                     String prefix = args[2];
-                    String training_file = String.format("{0}_train.pl",prefix);
-                    String bias_file = String.format("{0}_bias.txt",prefix);
-                    String itemset_file = String.format("{0}_itemset_mining.txt",prefix);
-                    String index2col_file = String.format("{0}_index2colname.txt",prefix);
+                    String training_file = String.format("%s_train.pl",prefix);
+                    String bias_file = String.format("%s_bias.txt",prefix);
+                    String itemset_file = String.format("%s_itemset_mining.txt",prefix);
+                    String index2col_file = String.format("%s_index2colname.txt",prefix);
                     f = new HUI_FOLD(training_file,bias_file,itemset_file,index2col_file);
                     try
                     {

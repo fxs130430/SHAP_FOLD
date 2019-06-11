@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -14,7 +13,7 @@ import org.jpl7.Query;
 import org.jpl7.Term;
 import org.jpl7.Util;
 
-public class FOLD 
+public class LIME_FOLD 
 {
     private Query                          m_qfoil;
     private Query                          m_qDS;
@@ -23,9 +22,11 @@ public class FOLD
     public ArrayList<Predicate>            m_negExamples;
     private ArrayList<Clause>              m_Clauses;
     private ArrayList<Clause>              m_ExceptionClauses;
-    private int                            m_nAbIndex;   
+    private int                            m_nAbIndex;
+    private Map<String,Map<String,Double>> m_mapSHAPVals;
+   
     
-    public FOLD(String x_strDataset,String x_strModeDeclarations)
+    public LIME_FOLD(String x_strDataset,String x_strModeDeclarations,String x_strSHAP_URL)
     {
         m_Language_Bias = new LanguageBias(x_strModeDeclarations);
         String t1 = "consult('foil.pl')";
@@ -60,6 +61,25 @@ public class FOLD
         {
                 System.out.printf("failed to load examples...\r\n");
                 System.exit(-1);
+        }
+        m_mapSHAPVals = new HashMap<>();
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(x_strSHAP_URL))) 
+        {
+            String line;
+            String[] header = null;
+            while ((line = br.readLine()) != null) 
+            {
+                header = line.split(":");
+                if(!m_mapSHAPVals.containsKey(header[0]))
+                    m_mapSHAPVals.put(header[0], new HashMap<>());
+                m_mapSHAPVals.get(header[0]).put(header[1], Double.parseDouble(header[2]));
+            }
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+            System.exit(-1);
         }
     }   
     private boolean getExamples()
@@ -203,22 +223,84 @@ public class FOLD
         dTotal -= Math.log(utils.factorial(x_cl.Body.size())) / Math.log(2);
         return dTotal;
     }
+    public ArrayList<String> best_next_clause_SHAP(Clause x_clause,ArrayList<Predicate> x_PosExamples,ArrayList<Predicate> x_NegExamples)
+    {
+        Map<String, Double> mapSumAllShapScores = new HashMap<String, Double>();
+        for(Predicate e: x_PosExamples)
+        {
+            double sign = 0;
+            if(e.toString().contains("positive"))
+            {    sign = 1;
+                if(m_negExamples.contains(e))
+                    sign = -1;
+            }
+            else if(e.toString().contains("negative"))
+            {
+                sign = -1;
+                if(m_negExamples.contains(e))
+                    sign = 1;
+            }
+            String id = e.toString().substring(e.toString().indexOf("(")+ 1, e.toString().indexOf(")"));
+            String shap_key = String.format("data(%s)",id); 
+                
+            if(m_mapSHAPVals.containsKey(shap_key))
+            {
+                Map<String, Double> map_e = m_mapSHAPVals.get(shap_key);
+                for (Map.Entry<String, Double> entry : map_e.entrySet())
+                {
+                    if(!mapSumAllShapScores.containsKey(entry.getKey()))
+                        mapSumAllShapScores.put(entry.getKey(),0.0);
+
+                    double temp = (sign * entry.getValue()) + mapSumAllShapScores.get(entry.getKey());
+                    mapSumAllShapScores.put(entry.getKey(),temp);
+                }
+            }
+            else
+            {
+                System.out.println("What the F?!");
+            }
+        }
+        
+        mapSumAllShapScores = utils.sortByValue((HashMap<String, Double>)mapSumAllShapScores);
+        ArrayList<String> arrTop_SHAP = new ArrayList<>();
+        for(String s:mapSumAllShapScores.keySet())
+        {
+            arrTop_SHAP.add(s);
+            if(arrTop_SHAP.size() > 5)
+                break;
+        }
+        return arrTop_SHAP;
+    }
     public Pair<Clause,Double> best_next_clause(Clause x_clause,ArrayList<Predicate> x_PosExamples,ArrayList<Predicate> x_NegExamples)
     {
-       double dCurrent_Info = getInfo_value(x_clause, x_PosExamples, x_NegExamples);
+        double dCurrent_Info = getInfo_value(x_clause, x_PosExamples, x_NegExamples);
         Clause c_best = null;
         double dGain_best = 0;
         ArrayList<Clause> arrCandidate_clauses = m_Language_Bias.refine(x_clause);
         int total = arrCandidate_clauses.size();
         int n = 0;
+        
+        ArrayList<String> top_shap_preds = best_next_clause_SHAP(x_clause, x_PosExamples, x_NegExamples);
         for(Clause c:arrCandidate_clauses)
         {
             //System.out.println(String.format("%d of %d",++n,total));
             double dGain = compute_gain(c, dCurrent_Info, x_PosExamples, x_NegExamples);
+            //ArrayList<Predicate> covered_examples = covered_examples(c, x_PosExamples);
+            //ArrayList<String> top_shap_preds = best_next_clause_SHAP(c, covered_examples, x_NegExamples);
+
             if(dGain > dGain_best)
             {
-                dGain_best = dGain;
-                c_best = c;
+                String[] body_preds = c.getBodyPredicates(); 
+                String strLastPred = body_preds[body_preds.length - 1];
+                if(top_shap_preds.contains(strLastPred))
+                {
+                    dGain_best = dGain;
+                    c_best = c;
+                }
+                else
+                {
+                    System.out.println("shap discretion!");
+                }
             }
         }
         if(c_best == null)
@@ -228,7 +310,7 @@ public class FOLD
         double dMDL_score = dExplictBits - dHypothesisEncoding;
         if(dMDL_score < 0)
             return null;
-        return new Pair<Clause,Double>(c_best,dGain_best);             
+        return new Pair<Clause,Double>(c_best,dGain_best);       
     }
     private Clause extend_clause_loop(Clause x_clause,ArrayList<Predicate> x_PosExamples,ArrayList<Predicate> x_NegExamples)
     {
@@ -258,7 +340,7 @@ public class FOLD
                 bExit = true;
                 if(x_clause.Body.size() > 0)
                 {
-                    if(getRuleAccuracy(x_clause, x_PosExamples, x_NegExamples) < 0.99)
+                    if(getRuleAccuracy(x_clause, x_PosExamples, x_NegExamples) < 0.8)
                         c_new = null;
                     else
                         c_new = x_clause;
@@ -274,7 +356,7 @@ public class FOLD
                 x_PosExamples = covered_examples(c_new, x_PosExamples);
                 x_NegExamples = covered_examples(c_new, x_NegExamples);
                 
-                if(getRuleAccuracy(c_new, x_PosExamples, x_NegExamples) > 0.99)
+                if(getRuleAccuracy(c_new, x_PosExamples, x_NegExamples) > 0.8)
                 //if(x_NegExamples.size() == 0)
                     bExit = true;
             }

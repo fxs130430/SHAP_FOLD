@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.jpl7.Term;
 
 public class utils {
     public static String[] alphabet = new String[]{"A","B","C","D","E","F","G",

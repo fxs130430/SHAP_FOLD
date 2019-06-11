@@ -1,27 +1,17 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import javafx.util.Pair;
 import org.jpl7.Compound;
 import org.jpl7.Query;
 import org.jpl7.Term;
 import org.jpl7.Util;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-/**
- *
- * @author fxs13
- */
-public class HUI_FOLD {
-    
+
+public class FOLD 
+{
     private Query                          m_qfoil;
     private Query                          m_qDS;
     private LanguageBias                   m_Language_Bias;
@@ -29,12 +19,9 @@ public class HUI_FOLD {
     public ArrayList<Predicate>            m_negExamples;
     private ArrayList<Clause>              m_Clauses;
     private ArrayList<Clause>              m_ExceptionClauses;
-    private int                            m_nAbIndex;
-    private Map<String,String>             m_mapExample2Transaction;
-    private Map<String,String>             m_mapItem2Predicate;
-    private Set<String>                    m_hsHUI;
+    private int                            m_nAbIndex;   
     
-    public HUI_FOLD(String x_strDataset,String x_strModeDeclarations,String x_strTransactions_URL,String x_strItem2PredicateDic)
+    public FOLD(String x_strDataset,String x_strModeDeclarations)
     {
         m_Language_Bias = new LanguageBias(x_strModeDeclarations);
         String t1 = "consult('foil.pl')";
@@ -70,41 +57,6 @@ public class HUI_FOLD {
                 System.out.printf("failed to load examples...\r\n");
                 System.exit(-1);
         }
-        m_mapExample2Transaction = new HashMap<>();
-        m_mapItem2Predicate = new HashMap<>();
-        m_hsHUI = new HashSet<String>();
-        
-        try (BufferedReader br = new BufferedReader(new FileReader(x_strItem2PredicateDic))) 
-        {
-            String line;
-            String[] header = null;
-            while ((line = br.readLine()) != null) 
-            {
-                header = line.split("->");
-                m_mapItem2Predicate.put(header[0],header[1]);
-            }
-        }
-        catch(Exception ex)
-        {
-            System.out.println("Warning: No High Utility Itemset file provided");
-            System.exit(-1);
-        }
-        
-        try (BufferedReader br = new BufferedReader(new FileReader(x_strTransactions_URL))) 
-        {
-            String line;
-            String[] header = null;
-            while ((line = br.readLine()) != null) 
-            {
-                header = line.split("::");
-                m_mapExample2Transaction.put(header[0],header[1]);
-            }
-        }
-        catch(Exception ex)
-        {
-            System.out.println("Warning: No High Utility Itemset file provided");
-            System.exit(-1);
-        }
     }   
     private boolean getExamples()
     {
@@ -132,7 +84,6 @@ public class HUI_FOLD {
                 //System.out.println(t.toString());
                 m_negExamples.add(new Predicate(t.toString()));
             }
-            System.out.println("Read Examples Sucessfully...!");
             return true;
         }
         return false;        
@@ -183,6 +134,36 @@ public class HUI_FOLD {
         }        
         return arrUncovered;
     }
+    private double getInfo_value(Clause x_clause,ArrayList<Predicate> x_PosTerms,ArrayList<Predicate> x_NegTerms)
+    {
+        String strPos_list = utils.toPrologList(x_PosTerms);
+        String strNeg_list = utils.toPrologList(x_NegTerms);
+        String t1 = "info_value(("+x_clause.toString()+"), "+strPos_list+","+strNeg_list+", Value)";
+        Query q1 = new Query(t1);
+        if(q1.hasSolution())
+        {
+            double dGain = ((Term)q1.oneSolution().get("Value")).doubleValue();
+            return dGain;
+        }
+        System.out.println("Error in getInfo_value");
+        System.exit(-1);
+        return 0;        
+    }
+    public double compute_gain(Clause x_clause,double x_dCurrentInfo,ArrayList<Predicate> x_PosPredicates,ArrayList<Predicate> x_NegPredicates)
+    {
+        String strPos_list = utils.toPrologList(x_PosPredicates);
+        String strNeg_list = utils.toPrologList(x_NegPredicates);
+        String t1 = "compute_gain("+strNeg_list+", "+strPos_list+", "+x_dCurrentInfo+", ("+x_clause.toString()+"),Gain)";
+        Query q1 = new Query(t1);
+        if(q1.hasSolution())
+        {
+            double dGain = ((Term)q1.oneSolution().get("Gain")).doubleValue();
+            return dGain;
+        }
+        System.out.println("Error in gain computation");
+        System.exit(-1);
+        return 0;
+    }
     public double getRuleAccuracy(Clause x_clause,ArrayList<Predicate> x_posExamples, ArrayList<Predicate> x_negExamples)
     {
         double tp = covered_examples(x_clause, x_posExamples).size();
@@ -218,17 +199,47 @@ public class HUI_FOLD {
         dTotal -= Math.log(utils.factorial(x_cl.Body.size())) / Math.log(2);
         return dTotal;
     }
-    private Clause extend_clause_loop(Clause x_clause,ArrayList<Predicate> x_PosExamples,ArrayList<Predicate> x_NegExamples) throws IOException
+    public Pair<Clause,Double> best_next_clause(Clause x_clause,ArrayList<Predicate> x_PosExamples,ArrayList<Predicate> x_NegExamples)
+    {
+       double dCurrent_Info = getInfo_value(x_clause, x_PosExamples, x_NegExamples);
+        Clause c_best = null;
+        double dGain_best = 0;
+        ArrayList<Clause> arrCandidate_clauses = m_Language_Bias.refine(x_clause);
+        int total = arrCandidate_clauses.size();
+        int n = 0;
+        for(Clause c:arrCandidate_clauses)
+        {
+            //System.out.println(String.format("%d of %d",++n,total));
+            double dGain = compute_gain(c, dCurrent_Info, x_PosExamples, x_NegExamples);
+            if(dGain > dGain_best)
+            {
+                dGain_best = dGain;
+                c_best = c;
+            }
+        }
+        if(c_best == null)
+            return null;
+        double dExplictBits = getExplicitBits(c_best,x_PosExamples);
+        double dHypothesisEncoding = getClauseBits(c_best);
+        double dMDL_score = dExplictBits - dHypothesisEncoding;
+        if(dMDL_score < 0)
+            return null;
+        return new Pair<Clause,Double>(c_best,dGain_best);             
+    }
+    private Clause extend_clause_loop(Clause x_clause,ArrayList<Predicate> x_PosExamples,ArrayList<Predicate> x_NegExamples)
     {
         Clause c_new = null;
         boolean bExit = false;
         
         while(!bExit)
         {
-            if(x_clause.Body.size() == 0)
+            //Pair<Clause,Double> pair = best_next_clause_SHAP(x_clause,x_PosExamples,x_NegExamples);
+            Pair<Clause,Double> pair = best_next_clause(x_clause,x_PosExamples,x_NegExamples);
+            
+            if(pair != null) 
             {
-                c_new = HUI_Clause(x_PosExamples,x_NegExamples);
-                x_clause = c_new;
+                 c_new = pair.getKey();
+                 x_clause = c_new;
             }
             else
             {
@@ -243,12 +254,8 @@ public class HUI_FOLD {
                 bExit = true;
                 if(x_clause.Body.size() > 0)
                 {
-                    if(getRuleAccuracy(x_clause, x_PosExamples, x_NegExamples) < 0.80)
-                    {
+                    if(getRuleAccuracy(x_clause, x_PosExamples, x_NegExamples) < 0.99)
                         c_new = null;
-                        for(Clause c: pair_exception.getValue())
-                            m_ExceptionClauses.remove(c);
-                    }   
                     else
                         c_new = x_clause;
                 }
@@ -263,61 +270,14 @@ public class HUI_FOLD {
                 x_PosExamples = covered_examples(c_new, x_PosExamples);
                 x_NegExamples = covered_examples(c_new, x_NegExamples);
                 
-                if(getRuleAccuracy(c_new, x_PosExamples, x_NegExamples) >= 0.80)
+                if(getRuleAccuracy(c_new, x_PosExamples, x_NegExamples) > 0.99)
                 //if(x_NegExamples.size() == 0)
                     bExit = true;
             }
         }
         return c_new;
     }
-    private Clause HUI_Clause(ArrayList<Predicate> x_PosExamples, ArrayList<Predicate> x_NegExamples) throws IOException
-    {
-        AlgoTKO_Basic algo = new AlgoTKO_Basic();
-        ArrayList<String> arrInput = new ArrayList<>();
-        for(int i = 0 ; i < x_PosExamples.size() ; i++)
-        {
-            String str_ex = x_PosExamples.get(i).toString();
-            String transaction = m_mapExample2Transaction.get(str_ex);
-            if(transaction.equals(":0:"))
-                continue;
-            arrInput.add(transaction);            
-        }
-        int topK = 1;
-        while(topK <= m_hsHUI.size() + 1)
-        {
-            algo.runAlgorithm(arrInput, topK);
-            ArrayList<String> arrOutput = algo.getResulted_HUI();
-            for(int k = arrOutput.size() - 1 ; k >= 0 ; k--)
-            {
-                String s = arrOutput.get(k);
-                if(m_hsHUI.contains(s))
-                    continue;
-                m_hsHUI.add(s);
-                String[] items = s.split(" ");
-                Clause MostGeneralClause = m_Language_Bias.getGoalClause();
-                for(int i = 0 ; i < items.length ; i++)
-                {
-                    String pred = m_mapItem2Predicate.get(items[i]);
-                    MostGeneralClause.Body.add(new Predicate(pred));
-                }
-                System.out.println(MostGeneralClause.toString());
-                Clause CurrClause = new Clause(MostGeneralClause.toString());
-                int best_neg_coverage = covered_examples(CurrClause, x_NegExamples).size();
-                while(CurrClause.Body.size() > 0)
-                {
-                    CurrClause.Body.remove(CurrClause.Body.size() - 1);
-                    int cur_neg_coverage = covered_examples(CurrClause, x_NegExamples).size();
-                    if(cur_neg_coverage > best_neg_coverage)
-                        return MostGeneralClause;
-                    MostGeneralClause = new Clause(CurrClause.toString());
-                }
-                return MostGeneralClause;
-            }
-            topK++;
-        }
-        return null;
-    }
-    private void foil_loop(ArrayList<Predicate> x_PosExamples,ArrayList<Predicate> x_NegExamples,ArrayList<Clause> x_Clauses) throws IOException
+    private void foil_loop(ArrayList<Predicate> x_PosExamples,ArrayList<Predicate> x_NegExamples,ArrayList<Clause> x_Clauses)
     {
         boolean bExit = false;
         int nFailCounter = 0;
@@ -340,54 +300,47 @@ public class HUI_FOLD {
                     System.out.printf("Clause added:>>>> %s\r\n", c_new);
                 }
             }
-            if(nFailCounter == 30 || x_PosExamples.size() == 0)
+            if(nFailCounter == 2 || x_PosExamples.size() == 0)
                 bExit = true;            
-
         }        
     }
-    private Pair<Clause,ArrayList<Clause>> exception_handler(Clause x_curClause,ArrayList<Predicate> x_PosExamples,ArrayList<Predicate> x_NegExamples) throws IOException
+    private Pair<Clause,ArrayList<Clause>> exception_handler(Clause x_curClause,ArrayList<Predicate> x_PosExamples,ArrayList<Predicate> x_NegExamples)
     {
-        int default_coverage = covered_examples(x_curClause, x_NegExamples).size();
         ArrayList<Clause> arrAbPredicates = new ArrayList<>();
-        //Clause p = HUI_Clause(x_PosExamples, x_NegExamples);
-        //double acc = this.getRuleAccuracy(p, x_PosExamples, x_NegExamples);
+        Pair<Clause,Double> p = best_next_clause(x_curClause, x_PosExamples, x_NegExamples);
         //Pair<Clause,Double> p = best_next_clause_SHAP(x_curClause, x_PosExamples, x_NegExamples);
         Clause c_ret = null;
-        ArrayList<Clause> arrClauses = new ArrayList<>();
-
-        while(x_PosExamples.size() > Math.max(1, 0.3 * default_coverage))
+        
+        if(p != null) // positive gain
         {
-             Clause p = HUI_Clause(x_PosExamples,x_NegExamples);
-             if(p == null)
-                 break;
-             arrClauses.add(p);
-             x_PosExamples = update_covered_examples(p,x_PosExamples);
-        }
-        if(arrClauses.size() > 0)
-        {
-            String strHead = String.format("ab%d", m_nAbIndex++);
-            for(int i = 0 ; i < arrClauses.size() ; i++)
+            ArrayList<Clause> arrClauses = new ArrayList<>();
+            foil_loop(x_PosExamples, x_NegExamples,arrClauses);
+            if(arrClauses.size() > 0)
             {
-                Clause c = arrClauses.get(i);
-                c.Head.name = strHead;
-                arrAbPredicates.add(c);
-                if(c.assert_clause())
+                String strHead = String.format("ab%d", m_nAbIndex++);
+                for(int i = 0 ; i < arrClauses.size() ; i++)
                 {
-                    System.out.printf("%s added to the exceptions.\r\n", c.toString());
+                    Clause c = arrClauses.get(i);
+                    c.Head.name = strHead;
+                    arrAbPredicates.add(c);
+                    if(c.assert_clause())
+                    {
+                        System.out.printf("%s added to the exceptions.\r\n", c.toString());
+                    }
+                    else
+                    {
+                        System.out.printf("Error in asserting clause %s\r\n",c.toString());
+                        System.exit(-1);
+                    }
                 }
-                else
-                {
-                    System.out.printf("Error in asserting clause %s\r\n",c.toString());
-                    System.exit(-1);
-                }
+                Predicate negated_p = new Predicate(String.format("not(%s)", arrClauses.get(0).Head.toString()));
+                x_curClause.addPredicate(negated_p);
+                c_ret = x_curClause;
             }
-            Predicate negated_p = new Predicate(String.format("not(%s)", arrClauses.get(0).Head.toString()));
-            x_curClause.addPredicate(negated_p);
-            c_ret = x_curClause;
         }
         return new Pair<Clause,ArrayList<Clause>>(c_ret,arrAbPredicates);
     }
-    public void foil_run() throws IOException
+    public void foil_run()
     {
         foil_loop(m_posExamples, m_negExamples, m_Clauses);
         System.out.println("Learned concept clause(s):");
@@ -472,37 +425,16 @@ public class HUI_FOLD {
     }
     public void Display_Hypothesis()
     {
-        try
+        for(Clause c: m_Clauses)
         {
-            PrintWriter writer = new PrintWriter("hypothesis.txt", "UTF-8");
-            for(Clause c: m_Clauses)
-            {
-                //int coverage = covered_examples(c, m_posExamples).size();
-                if(!c.bMarkAsDeleted)
-                {
-                    System.out.printf("%s.\r\n",c.toString());
-                    writer.println(String.format("%s.\r\n",c.toString()));
-                }
-                
-            }
-            System.out.println();
-            writer.println();
-            for(Clause c:m_ExceptionClauses)
-            {
+            if(!c.bMarkAsDeleted)
                 System.out.printf("%s.\r\n",c.toString());
-                writer.println(String.format("%s.\r\n",c.toString()));
-            }
-
-            writer.close();
-
-            System.out.printf("Total Coverage: %d out of %d\r\n", getTotalCoverage(m_Clauses),m_posExamples.size());
         }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            System.exit(-1);
-        }
+        System.out.println();
+        for(Clause c:m_ExceptionClauses)
+            System.out.printf("%s.\r\n",c.toString());
+        
+        System.out.printf("Total Coverage: %d out of %d\r\n", getTotalCoverage(m_Clauses),m_posExamples.size());
     }
-
     
 }
