@@ -47,6 +47,7 @@ We only support Windows at the moment.
 2. Execute the following command: <pre> ant -buildfile build.xml </pre>
 3. Upon Successful execution two new folders (i.e., build, dist) will be created.
 4. Open the dist folder and copy the fold.jar to your conveneint destination folder. 
+5. Copy foil.pl to the same destination folder. Our algorithm uses parts of the foil implementation (Courtesy of John M. Zelle and Raymond J. Mooney) and hence, JPL loads that file upon initialization. 
 
 ## Instructions
 1. Data preparation
