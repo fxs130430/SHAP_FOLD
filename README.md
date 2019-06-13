@@ -57,7 +57,7 @@ We only support Windows at the moment.
 2. Training a Statistical Model
     + Modify the "training.py" according the provided examples to work with your dataset.
     + Remember the dataset_name variable. It will be used later to run FOLD algorithm.
-    + Run the Python sccript as follows:<pre> python training.py </pre>.
+    + Run the Python script as follows:<pre> python training.py </pre>.
     + Upon sucessful execution it will produce 6 files including 2 Prolog files with ".pl" extension. Make sure that all files are put in the same folder that the jar file "UFOLD.java" is located.  
 3. Run the FOLD algorithm as follows: <pre> java -jar fold.jar -mode shapfold <dataset_name> </pre>
 4. Upon successful execution, the file "hypothesis.txt" will be created. It contains a logic program that would explain the underlying logic of the statistical model trained using "training.py" script.
