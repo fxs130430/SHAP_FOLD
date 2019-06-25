@@ -1,6 +1,44 @@
 # FOLD
 This is the First Implementation of FOLD (First Order Learner of Default) algorithm. FOLD is an ILP algorithm that learns a hypothesis from a background knowledge represented as normal logic program, with two disjoint sets of Positive and Negative examples. Learning hypotheses in terms of default theories (i.e., default and exceptions) outperforms Horn based ILP algorithms in terms of classification evaluation measures. It also significantly decreases the number of induced clauses. For more information about the original FOLD algorithm and learning default theories kindly refer to the [FOLD paper](https://arxiv.org/pdf/1707.02693.pdf "FOLD paper").
 
+### Example (From [FOLD Paper](https://arxiv.org/pdf/1707.02693.pdf "FOLD paper"))
+FOLD Algorithm can handle nested levels of exceptions (i.e., Exceptions to defaults, exceptions to exceptions etc.)
+Birds and planes normally fly, except penguins and damaged planes that can't. There are however superpenguins that can fly (exceptional penguins)
+```
+B:  bird(X) :- penguin(X).
+    penguin(X) :- superpenguin(X).
+    bird(a).
+    bird(b).
+    penguin(c).
+    penguin(d).
+    superpenguin(e).
+    superpenguin(f).
+    cat(c1).
+    plane(g).
+    plane(h).
+    plane(h).
+    plane(k).
+    plane(m).
+    damaged(k).
+    damaged(m).
+    -----------
+E+: fly(a).
+    fly(b).
+    fly(e).
+    fly(f).
+    fly(g).
+    fly(h).
+E-: Closed World Assumption is implictly used.
+   ------------
+FOLD Learns the following hypothesis:
+    fly(X) :- plane(X), not ab_plane(X).
+    fly(X) :- bird(X), not ab_bird(X).
+    fly(X) :- superpenguin(X).
+    ab_plane(X) :- damaged(X).
+    ab_bird(X) :- penguin(X).
+```
+   
+
 ### SHAP_FOLD
 This algorithm replaces the heuristic based search for best clause in ILP, with a technique from datamining known as High-Utility Itemset Mining. The idea is to use [SHAP](https://github.com/slundberg/shap "SHAP") to generate relevant features for each training data. Then our FOLD algorithm learns a set of Non-Monotonic clauses, that would capture the underlying logic of the Statistical Model from which SHAP features were extracted. For more details refer to our [arXiv paper](https://arxiv.org/pdf/1905.11226.pdf). 
 
