@@ -79,8 +79,8 @@ public class FOLD
                     continue;
                 if(t.toString().equals("ckd(poor)"))
                     continue;
-                if(!t.toString().contains("(p"))
-                    continue;
+                //if(!t.toString().contains("(p"))
+                //    continue;
                 //System.out.println(t.toString());
                 m_negExamples.add(new Predicate(t.toString()));
             }
