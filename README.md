@@ -4,6 +4,10 @@ This is the First Implementation of FOLD (First Order Learner of Default) algori
 ### Example (From [FOLD Paper](https://arxiv.org/pdf/1707.02693.pdf "FOLD paper"))
 FOLD Algorithm can handle nested levels of exceptions (i.e., Exceptions to defaults, exceptions to exceptions etc.)
 Birds and planes normally fly, except penguins and damaged planes that can't. There are however superpenguins that can fly (exceptional penguins)
+
+This example could be found in examples/flies folder. To run the example (after sucessful building from the sources), run the following command:
+ <pre> java -jar fold.jar -mode fold flies.pl flies.txt </pre>
+
 ```
 B:  bird(X) :- penguin(X).
     penguin(X) :- superpenguin(X).
@@ -37,7 +41,7 @@ FOLD Learns the following hypothesis:
     ab_plane(X) :- damaged(X).
     ab_bird(X) :- penguin(X).
 ```
-   
+
 
 ### SHAP_FOLD
 This algorithm replaces the heuristic based search for best clause in ILP, with a technique from datamining known as High-Utility Itemset Mining. The idea is to use [SHAP](https://github.com/slundberg/shap "SHAP") to generate relevant features for each training data. Then our FOLD algorithm learns a set of Non-Monotonic clauses, that would capture the underlying logic of the Statistical Model from which SHAP features were extracted. For more details refer to our [arXiv paper](https://arxiv.org/pdf/1905.11226.pdf). 
