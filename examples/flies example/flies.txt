@@ -1,0 +1,6 @@
+#modeh(flies(var(object)))
+#modeb(1,bird(var(object)))
+#modeb(1,penguin(var(object)))
+#modeb(1,superpenguin(var(object)))
+#modeb(1,plane(var(object)))
+#modeb(1,damaged(var(object)))
