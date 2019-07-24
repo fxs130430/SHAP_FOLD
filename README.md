@@ -49,13 +49,13 @@ This algorithm replaces the heuristic based search for best clause in ILP, with 
 ### Example
 [UCI Car evaluation](https://archive.ics.uci.edu/ml/datasets/car+evaluation) contains examples with the six following attributes: buying price, maintenance, number of doors, persons (capacity), lug_boot size and safety. The following logic program will be learned by SHAP_FOLD algorithm using the insights taken from an XGBoost model. positive(A) indicates the examples for which a target property holds. In this dataset the target property is an acceptable car quality. Each clause states a default theory. For example the first clause says as long as car's safety is high, it has an acceptable quality unless it is an abnormal case, in which it's either too small (only fits 2 person) or the maintanance cost is high.
 ```
-positive(A):-safety(A,high),not(ab0(A)).
-positive(A):-persons(A,4),safety(A,med),not(ab2(A)).
-positive(A):-lugboot(A,big),safety(A,med),persons(A,more).
-positive(A):-safety(A,med),lugboot(A,med),persons(A,more),not(ab4(A)).
-positive(A):-buying(A,med),safety(A,high),not(ab6(A)).
-positive(A):-persons(A,4),safety(A,high),buying(A,low).
-positive(A):-safety(A,high),buying(A,low),persons(A,more),not(ab8(A)).
+acceptable(A):-safety(A,high),not(ab0(A)).
+acceptable(A):-persons(A,4),safety(A,med),not(ab2(A)).
+acceptable(A):-lugboot(A,big),safety(A,med),persons(A,more).
+acceptable(A):-safety(A,med),lugboot(A,med),persons(A,more),not(ab4(A)).
+acceptable(A):-buying(A,med),safety(A,high),not(ab6(A)).
+acceptable(A):-persons(A,4),safety(A,high),buying(A,low).
+acceptable(A):-safety(A,high),buying(A,low),persons(A,more),not(ab8(A)).
 
 ab0(A):-persons(A,2).
 ab0(A):-maint(A,vhigh).
